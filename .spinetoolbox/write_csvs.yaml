@@ -1,0 +1,49 @@
+# csv_filename:
+#   list of source entity_classes:
+#     dict of parameter name: [[index_name source dimensions], [value name source dimensions]]
+#     OR list of [[index_name source dimensions], [list of parameter names]]
+
+rep-periods-data:
+  - year: [[0], [resolution, num_timesteps], [0]]
+asset:
+  - asset: {asset: [[0], [0]]}
+  - asset__type: {type: [[0], [1]]}
+  - asset__group: {group: [[0], [1]]}
+  - asset: [[0], [capacity, min_operating_point, investment_method, investment_ingeter, technical_lifetime, economic_lifetime, discount_rate, consumer_balance_sense, capacity_storage_energy, is_seasonal, use_binary_storage_method, unit_commitment, unit_commitment_method, unit_commitment_integer, ramping,storage_method_energy, energy_to_power_ratio, investment_integer_storage_energy, max_ramp_up,max_ramp_down]]
+year-data:
+  - year: {year: [[0], [0]]}
+  - year: [[0], [length, is_milestone]]
+asset-commission:
+  - asset__commission: {asset: [[0], [0]]}
+  - asset__commission: {commission_year: [[0], [1]]}
+  - asset__commission: [[0], [fixed_cost, investment_cost, investment_limit, fixed_cost_storage_energy, investment_cost_storage_energy, investment_limit_storage_energy]]
+asset-milestone:
+  - asset__year: {asset: [[0], [0]]}
+  - asset__year: {milestone_year: [[0], [1]]}
+  - asset__year: [[0], [investable, peak_demand, storage_inflows, initial_storage_level, min_energy_timeframe_partition, max_energy_timeframe_partition, units_on_cost]]
+asset-both:
+  - asset__commission__year: {asset: [[0], [0]]}
+  - asset__commission__year: {milestone_year: [[0], [2]]}
+  - asset__commission__year: {commission_year: [[0], [1]]}
+  - asset__commission__year: [[0], [decommissionable, initial_units, initial_storage_units]]
+flow:
+  - asset__asset__carrier: {from_asset: [[0, 1, 2], [0]]}
+  - asset__asset__carrier: {to_asset: [[0, 1, 2], [1]]}
+  - asset__asset__carrier: {carrier: [[0, 1, 2], [2]]}
+  - asset__asset__carrier: [[0, 1, 2], [is_transport,capacity,technical_lifetime,economic_lifetime,discount_rate,investment_integer]]
+flow-commission:
+  - asset__asset__commission: {from_asset: [[0, 1, 2], [0]]}
+  - asset__asset__commission: {to_asset: [[0, 1, 2], [1]]}
+  - asset__asset__commission: {commission_year: [[0, 1, 2], [2]]}
+  - asset__asset__commission: [[0, 1, 2], [fixed_cost,investment_cost,efficiency,investment_limit,flow_coefficient_in_capacity_constraint]]
+flow-milestone:
+  - asset__asset__year: {from_asset: [[0, 1, 2], [0]]}
+  - asset__asset__year: {to_asset: [[0, 1, 2], [1]]}
+  - asset__asset__year: {milestone_year: [[0, 1, 2], [2]]}
+  - asset__asset__year: [[0, 1, 2], [investable,variable_cost]]
+flow_both:
+  - asset__asset__year__commission: {from_asset: [[0, 1, 2, 3], [0]]}
+  - asset__asset__year__commission: {to_asset: [[0, 1, 2, 3], [1]]}
+  - asset__asset__year__commission: {milestone_year: [[0, 1, 2, 3], [3]]}
+  - asset__asset__year__commission: {commission_year: [[0, 1, 2, 3], [2]]}
+

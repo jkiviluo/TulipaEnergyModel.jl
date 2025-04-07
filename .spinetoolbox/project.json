@@ -1,0 +1,282 @@
+{
+    "project": {
+        "version": 13,
+        "description": "",
+        "settings": {
+            "enable_execute_all": true
+        },
+        "specifications": {
+            "Importer": [
+                {
+                    "type": "path",
+                    "relative": true,
+                    "path": ".spinetoolbox/specifications/Importer/import_tulipa_from_csv.json"
+                }
+            ],
+            "Exporter": [
+                {
+                    "type": "path",
+                    "relative": true,
+                    "path": ".spinetoolbox/specifications/Exporter/export_to_tulipa.json"
+                }
+            ]
+        },
+        "connections": [
+            {
+                "name": "from input-csvs to import tulipa",
+                "from": [
+                    "input-csvs",
+                    "right"
+                ],
+                "to": [
+                    "import tulipa",
+                    "left"
+                ],
+                "options": {
+                    "use_datapackage": true
+                },
+                "filter_settings": {
+                    "known_filters": {},
+                    "auto_online": true,
+                    "enabled_filter_types": {
+                        "alternative_filter": false,
+                        "scenario_filter": true
+                    }
+                }
+            },
+            {
+                "name": "from import tulipa to tulipa db",
+                "from": [
+                    "import tulipa",
+                    "right"
+                ],
+                "to": [
+                    "tulipa db",
+                    "left"
+                ],
+                "options": {
+                    "purge_before_writing": true,
+                    "purge_settings": {
+                        "alternative": true,
+                        "scenario": true,
+                        "scenario_alternative": true,
+                        "entity_class": false,
+                        "display_mode": false,
+                        "entity_class_display_mode": false,
+                        "superclass_subclass": false,
+                        "entity": true,
+                        "entity_group": true,
+                        "entity_alternative": true,
+                        "parameter_value_list": false,
+                        "list_value": false,
+                        "parameter_definition": false,
+                        "parameter_type": false,
+                        "parameter_value": true,
+                        "metadata": true,
+                        "entity_metadata": true,
+                        "parameter_value_metadata": true,
+                        "entity_location": true
+                    }
+                },
+                "filter_settings": {
+                    "known_filters": {},
+                    "auto_online": true,
+                    "enabled_filter_types": {
+                        "alternative_filter": false,
+                        "scenario_filter": true
+                    }
+                }
+            },
+            {
+                "name": "from tulipa db to export tulipa",
+                "from": [
+                    "tulipa db",
+                    "right"
+                ],
+                "to": [
+                    "export tulipa",
+                    "left"
+                ],
+                "filter_settings": {
+                    "known_filters": {
+                        "db_url@tulipa db": {
+                            "scenario_filter": {},
+                            "alternative_filter": {
+                                "import tulipa@2025-04-07T09:56:12": true
+                            }
+                        }
+                    },
+                    "auto_online": true,
+                    "enabled_filter_types": {
+                        "alternative_filter": false,
+                        "scenario_filter": true
+                    }
+                }
+            }
+        ],
+        "jumps": []
+    },
+    "items": {
+        "input-csvs": {
+            "type": "Data Connection",
+            "description": "",
+            "x": -429.609375,
+            "y": -132.03125,
+            "file_references": [
+                {
+                    "type": "path",
+                    "relative": true,
+                    "path": "test/inputs/Norse/asset-both.csv"
+                },
+                {
+                    "type": "path",
+                    "relative": true,
+                    "path": "test/inputs/Norse/asset-commission.csv"
+                },
+                {
+                    "type": "path",
+                    "relative": true,
+                    "path": "test/inputs/Norse/asset-milestone.csv"
+                },
+                {
+                    "type": "path",
+                    "relative": true,
+                    "path": "test/inputs/Norse/asset.csv"
+                },
+                {
+                    "type": "path",
+                    "relative": true,
+                    "path": "test/inputs/Norse/assets-profiles.csv"
+                },
+                {
+                    "type": "path",
+                    "relative": true,
+                    "path": "test/inputs/Norse/assets-rep-periods-partitions.csv"
+                },
+                {
+                    "type": "path",
+                    "relative": true,
+                    "path": "test/inputs/Norse/assets-timeframe-partitions.csv"
+                },
+                {
+                    "type": "path",
+                    "relative": true,
+                    "path": "test/inputs/Norse/assets-timeframe-profiles.csv"
+                },
+                {
+                    "type": "path",
+                    "relative": true,
+                    "path": "test/inputs/Norse/flow-both.csv"
+                },
+                {
+                    "type": "path",
+                    "relative": true,
+                    "path": "test/inputs/Norse/flow-commission.csv"
+                },
+                {
+                    "type": "path",
+                    "relative": true,
+                    "path": "test/inputs/Norse/flow-milestone.csv"
+                },
+                {
+                    "type": "path",
+                    "relative": true,
+                    "path": "test/inputs/Norse/flow.csv"
+                },
+                {
+                    "type": "path",
+                    "relative": true,
+                    "path": "test/inputs/Norse/flows-profiles.csv"
+                },
+                {
+                    "type": "path",
+                    "relative": true,
+                    "path": "test/inputs/Norse/flows-rep-periods-partitions.csv"
+                },
+                {
+                    "type": "path",
+                    "relative": true,
+                    "path": "test/inputs/Norse/group-asset.csv"
+                },
+                {
+                    "type": "path",
+                    "relative": true,
+                    "path": "test/inputs/Norse/profiles-rep-periods.csv"
+                },
+                {
+                    "type": "path",
+                    "relative": true,
+                    "path": "test/inputs/Norse/profiles-timeframe.csv"
+                },
+                {
+                    "type": "path",
+                    "relative": true,
+                    "path": "test/inputs/Norse/rep-periods-data.csv"
+                },
+                {
+                    "type": "path",
+                    "relative": true,
+                    "path": "test/inputs/Norse/rep-periods-mapping.csv"
+                },
+                {
+                    "type": "path",
+                    "relative": true,
+                    "path": "test/inputs/Norse/timeframe-data.csv"
+                },
+                {
+                    "type": "path",
+                    "relative": true,
+                    "path": "test/inputs/Norse/year-data.csv"
+                }
+            ],
+            "db_references": []
+        },
+        "import tulipa": {
+            "type": "Importer",
+            "description": "",
+            "x": -308.73806423611114,
+            "y": -129.98806423611111,
+            "specification": "import tulipa from csv",
+            "cancel_on_error": false,
+            "on_conflict": "merge",
+            "file_selection": [
+                [
+                    "datapackage@input-csvs",
+                    true
+                ]
+            ]
+        },
+        "tulipa db": {
+            "type": "Data Store",
+            "description": "",
+            "x": -177.77018229166666,
+            "y": -120.87131076388891,
+            "url": {
+                "dialect": "sqlite",
+                "host": "",
+                "port": "",
+                "database": {
+                    "type": "path",
+                    "relative": true,
+                    "path": ".spinetoolbox/tulipa_db.sqlite"
+                },
+                "schema": ""
+            }
+        },
+        "export tulipa": {
+            "type": "Exporter",
+            "description": "",
+            "x": -46.98133680555557,
+            "y": -117.82443576388889,
+            "output_time_stamps": false,
+            "cancel_on_error": true,
+            "output_labels": [
+                {
+                    "in_label": "db_url@tulipa db",
+                    "out_label": "tulipa db_exported@export tulipa"
+                }
+            ],
+            "specification": "export to tulipa"
+        }
+    }
+}
