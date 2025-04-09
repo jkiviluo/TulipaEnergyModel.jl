@@ -6,13 +6,6 @@
             "enable_execute_all": true
         },
         "specifications": {
-            "Importer": [
-                {
-                    "type": "path",
-                    "relative": true,
-                    "path": ".spinetoolbox/specifications/Importer/import_tulipa_from_csv.json"
-                }
-            ],
             "Tool": [
                 {
                     "type": "path",
@@ -28,6 +21,13 @@
                     "type": "path",
                     "relative": true,
                     "path": ".spinetoolbox/specifications/Tool/csvs_from_directory.json"
+                }
+            ],
+            "Importer": [
+                {
+                    "type": "path",
+                    "relative": true,
+                    "path": ".spinetoolbox/specifications/Importer/import_tulipa_from_csv.json"
                 }
             ]
         },
@@ -90,7 +90,7 @@
                         "db_url@tulipa db": {
                             "scenario_filter": {},
                             "alternative_filter": {
-                                "import tulipa@2025-04-09T14:31:45": true
+                                "import tulipa@2025-04-09T14:32:57": true
                             }
                         }
                     },
