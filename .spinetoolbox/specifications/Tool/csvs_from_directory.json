@@ -1,0 +1,15 @@
+{
+    "name": "csvs from directory",
+    "tooltype": "python",
+    "includes": [
+        "csvs_from_directory.py"
+    ],
+    "description": "",
+    "inputfiles": [],
+    "inputfiles_opt": [],
+    "outputfiles": [
+        "tulipa_orig_input/*.csv"
+    ],
+    "cmdline_args": [],
+    "includes_main_path": "../.."
+}

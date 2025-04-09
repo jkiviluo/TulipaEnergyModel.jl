@@ -1,6 +1,0 @@
-rep-periods-data:
-  index_dim_names: [year, rep_period]
-  entity_classes:
-    year: [[0], [0], [resolution, num_timesteps]]
-
-
