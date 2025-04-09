@@ -23,47 +23,9 @@ if len(sys.argv) > 1:
 else:
     exit("Please give source database url as the first argument and the path to output folder as second argument")
 if len(sys.argv) > 2:
-    tab_files_path = sys.argv[2]
+    output_files_path = sys.argv[2]
 else:
     exit("Please give source database url as the first argument and the path to output folder as second argument")
-
-with open('write_more_csvs.yaml', 'r') as yaml_file:
-    csvs_to_write = yaml.safe_load(yaml_file)
-
-with DatabaseMapping(url_db) as source_db:
-    maps = FetchedMaps.fetch(source_db)
-    query = parameter_value_sq(source_db)
-    for csv_name, rules in csvs_to_write.items():
-        index_dim_names = rules["index_dim_names"]
-        processed_data = []
-        for entity_class, spec in rules["entity_classes"].items():
-            df_collect = pd.DataFrame()
-            if isinstance(spec, list):
-                if len(spec) > 2:
-                    for param_name in spec[2]:
-                        final_query = (
-                            source_db.query(query)
-                                .filter(query.c.entity_class_name == entity_class)
-                                .filter(query.c.parameter_definition_name == param_name)
-                                #.filter(query.c.scenario_name == )
-                        ).subquery()
-                        df = fetch_as_dataframe(source_db, final_query, maps)
-                        df = df.drop(columns=["entity_class_name", "alternative_name", "parameter_definition_name"])
-                        df.columns.values[-1] = param_name
-                        df.set_index(index_dim_names, inplace=True)
-                        if df_collect.empty:
-                            df_collect = df
-                        else:
-                            df_collect = df_collect.join(df, how='outer')
-                else:
-                    entities = source_db.find_entities(entity_class_name=entity_class)
-                    entity_list = list_from_objects(entities)
-                    df = pd.DataFrame(entity_list)
-            else:
-                exit(f"Type error for {spec}")
-
-        df_collect.to_csv(f"{csv_name}.csv")
-
 
 with open('write_csvs.yaml', 'r') as yaml_file:
     csvs_to_write = yaml.safe_load(yaml_file)
@@ -71,89 +33,108 @@ with open('write_csvs.yaml', 'r') as yaml_file:
 with DatabaseMapping(url_db) as source_db:
     maps = FetchedMaps.fetch(source_db)
     query = parameter_value_sq(source_db)
-    for csv_name, class__spec_list  in csvs_to_write.items():
-        df = pd.DataFrame()
-        processed_data = []
-        entity_index_name = None
-        for class__spec in class__spec_list:
-            for entity_class, spec in class__spec.items():
-                entities = source_db.find_entities(entity_class_name=entity_class)
-                entity_list = list_from_objects(entities)
-                entity_class_dimen_names = entity_class.split('__')
+    for csv_name, rules in csvs_to_write.items():
+        target_index_dim_names = rules["index_dim_names"]
+        df_collect = pd.DataFrame()
 
-                if isinstance(spec, list):
-                    output_dimen_names = []
-                    for i in spec[0]:
-                        output_dimen_names.append(entity_class_dimen_names[i])
-                    entity_index_name = '__'.join(output_dimen_names)
-                    for param_name in spec[1]:
-                        final_query = (
-                            source_db.query(query)
-                                .filter(query.c.entity_class_name == entity_class)
-                                .filter(query.c.parameter_definition_name == param_name)
-                                #.filter(query.c.scenario_name == )
-                        ).subquery()
-                        df_new = fetch_as_dataframe(source_db, final_query, maps)
-                        if not df_new.empty:
-                            name_lists = []
-                            # Need to add _1, _2 etc to the end of index names if there are duplicates
-                            unique_names_count = {}
-                            for i, output_dimen_name in enumerate(output_dimen_names):
-                                if output_dimen_name in unique_names_count:
-                                    unique_names_count[output_dimen_name] += 1
-                                else:
-                                    unique_names_count[output_dimen_name] = 1
-                            unique_counter = deepcopy(unique_names_count)
-                            for name in unique_names_count:
-                                unique_counter[name] = 0
-                            for i, output_dimen_name in enumerate(output_dimen_names):
-                                if unique_names_count[output_dimen_name] > 1:
-                                    unique_counter[output_dimen_name] += 1
-                                    output_dimen_name = f"{output_dimen_name}_{unique_counter[output_dimen_name]}"
-                                name_lists.append(df_new[output_dimen_name].tolist())
-                            if len(spec) > 2:
-                                for i in spec[2]:
-                                    index_loc = i + len(entity_class_dimen_names) + 3
-                                    name_lists.append(df_new.iloc[:, index_loc].tolist())
-                            name_list = ['__'.join(items) for items in zip(*name_lists)]
-                            query_dict = dict(zip(name_list, df_new["value"]))
-                            processed_data.append((param_name, query_dict))
-                elif isinstance(spec, dict):
-                    for param_name, dimens in spec.items():
-                        entity_index_name = '__'.join([entity_class_dimen_names[i] for i in dimens[0]])
-                        key_list = []
-                        value_list = []
-                        for item in entity_list:
-                            parts = item.split('__')
-                            key_list.append('__'.join(parts[i] for i in dimens[0]))
-                            value_list.append('__'.join(parts[i] for i in dimens[1]))
-                        entity_dict = dict(zip(key_list, value_list))
-                        processed_data.append((param_name, entity_dict))
+        if bool(rules.get("dims_to_parameters")):
+            for entity_class, dim_specs in rules["dims_to_parameters"].items():
+                if all(isinstance(item, list) for item in dim_specs):
+                    if len(dim_specs) == 1:
+                        source_index_dim_names = target_index_dim_names
+                        dims_to_parameters = dim_specs[0]
+                    elif len(dim_specs) == 2:
+                        source_index_dim_names = dim_specs[0]
+                        dims_to_parameters = dim_specs[1]
+                    else:
+                        exit(f"dims_to_parameters specification has wrong number of lists inside lists (has to be one or two): {dim_specs}")
                 else:
-                    exit(f"Type error for {spec}")
-        all_indices = set()
-        for _, data_dict in processed_data:
-            all_indices.update(data_dict.keys())
-        all_indices = sorted(all_indices)
+                    source_index_dim_names = target_index_dim_names
+                    dims_to_parameters = dim_specs
+                entity_class_from_db = source_db.find_entity_classes(name=entity_class)
+                class_dims_in_db = entity_class_from_db[0]["entity_class_byname"]
+                entities = source_db.find_entities(entity_class_name=entity_class)
+                dims = []
+                for spec_dim_name in source_index_dim_names:
+                    found_flag = False
+                    for j, db_dim_name in enumerate(class_dims_in_db):
+                        if spec_dim_name == db_dim_name:
+                            dims.append(j)
+                            found_flag = True
+                            break
+                    if not found_flag:
+                        exit(f"Couldn't find dimension {spec_dim_name} for {entity_class} spec {dim_specs}")
+                dims_p = []
+                for dim_to_parameter in dims_to_parameters:
+                    found_flag = False
+                    for j, db_dim_name in enumerate(class_dims_in_db):
+                        if dim_to_parameter == db_dim_name:
+                            dims_p.append(j)
+                            found_flag = True
+                            break
+                    if not found_flag:
+                        exit(f"Couldn't find dimension {dim_to_parameter} for {entity_class} spec {dim_specs}")
+                entity_list = list_from_objects(entities)
+                df = pd.DataFrame(columns=target_index_dim_names + dims_to_parameters)
+                for i, entity in enumerate(entity_list):
+                    df.loc[len(df)] = entity.split('__')
+                df.set_index(target_index_dim_names, inplace=True)
+                if df_collect.empty:
+                    df_collect = df
+                else:
+                    df_collect = df_collect.join(df, how='outer')
 
-        result = pd.DataFrame({"index_name_temp4234": all_indices})
+        if bool(rules.get("parameters")):
+            for entity_class, param_specs in rules["parameters"].items():
+                reorder_indexes = None
+                if all(isinstance(item, list) for item in param_specs):
+                    if len(param_specs) == 1:
+                        source_index_dim_names = target_index_dim_names
+                        param_names = param_specs[0]
+                    elif len(param_specs) == 2:
+                        source_index_dim_names = param_specs[0]
+                        param_names = param_specs[1]
+                    elif len(param_specs) == 3:
+                        reorder_indexes = param_specs[0]
+                        source_index_dim_names = param_specs[1]
+                        param_names = param_specs[2]
+                    else:
+                        exit(f"dims_to_parameters specification has wrong number of lists inside lists (has to be one or two): {param_specs}")
+                else:
+                    source_index_dim_names = target_index_dim_names
+                    param_names = param_specs
+                for param_name in param_names:
+                    param_name_target = deepcopy(param_name)
+                    if isinstance(param_name, list):
+                        param_name_target = param_name[1]
+                        param_name = param_name[0]
+                    final_query = (
+                        source_db.query(query)
+                            .filter(query.c.entity_class_name == entity_class)
+                            .filter(query.c.parameter_definition_name == param_name)
+                            #.filter(query.c.scenario_name == )
+                    ).subquery()
+                    df = fetch_as_dataframe(source_db, final_query, maps)
+                    if not df.empty:
+                        df = df.drop(columns=["entity_class_name", "alternative_name", "parameter_definition_name"])
 
-        # if len(spec) > 2:
-        #     all_indices_list = []
-        #     for index in all_indices:
-        #         index_split = index.split('__')
-        #         for i, index_name in enumerate(index_split):
-        #             all_indices_list[i].append(index_name)
-        #     for i in spec[0]:
-        #         result[param_name] = result["index_name_temp4234"].map(all_indices_list[i])
+                        # Rename column/index names to the target (instead of source db that the fetch got)
+                        if reorder_indexes:
+                            new_column_order = []
+                            for i in reorder_indexes:
+                                new_column_order.append(source_index_dim_names[i])
+                            new_column_order = new_column_order + df.columns.values.tolist()[len(reorder_indexes):]
+                            df = df[new_column_order]
+                        for i, target_dim_name in enumerate(target_index_dim_names):
+                            df.rename(columns={df.columns.values[i]: target_dim_name}, inplace=True)
+                        df.rename(columns={df.columns.values[-1]: param_name_target}, inplace=True)
+                        df.set_index(target_index_dim_names, inplace=True)
+                        if df_collect.empty:
+                            df_collect = df
+                        else:
+                            df_collect = df_collect.join(df, how='outer')
+                    # else:
+                    #     exit(f"Type error for {param_name}")
 
-
-        for param_name, data_dict in processed_data:
-            # Use map with a dictionary for fast value assignment
-            result[param_name] = result["index_name_temp4234"].map(data_dict)
-
-        result = result.drop("index_name_temp4234", axis=1)
-
-        result.to_csv(f"{csv_name}.csv", index=False)
-
+        df_collect.to_csv(f"{output_files_path}/{csv_name}.csv")
 

@@ -1,0 +1,17 @@
+{
+    "name": "write csvs for tulipa",
+    "tooltype": "python",
+    "includes": [
+        "csv_for_tulipa.py",
+        "write_more_csvs.yaml",
+        "write_csvs.yaml"
+    ],
+    "description": "",
+    "inputfiles": [],
+    "inputfiles_opt": [],
+    "outputfiles": [
+        "tulipa_input/*.csv"
+    ],
+    "cmdline_args": [],
+    "includes_main_path": "../.."
+}

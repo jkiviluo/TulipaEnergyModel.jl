@@ -1,49 +1,96 @@
-# csv_filename:
-#   list of source entity_classes:
-#     dict of parameter name: [[index_name source dimensions], [value name source dimensions]]
-#     OR list of [[index_name source dimensions], [list of parameter names]]
+# csv_filename without extension
+#   "index_dim_names": list of index dimensions in order to be output, can contain entity_class dimensions and parameter dimensions
+#   "dims_to_parameters": Dict of entity classes with a list of dimensions that should be included as parameter columns. Single list assumes
+#                         that index_dim_names do not change. Two lists within a list should have first the names of the dimensions in the database
+#                         and then the dimensions to be made into parameters.
+#   "parameters": Dict of entity classes with a list of parameter names that are to be written to the csv. Two lists within a list lets to use the first
+#                 list to have different dimension names in the database. Three lists allows to define re-ordering in the first list.
 
-rep-periods-data:
-  - year: [[0], [resolution, num_timesteps], [0]]
 asset:
-  - asset: {asset: [[0], [0]]}
-  - asset__type: {type: [[0], [1]]}
-  - asset__group: {group: [[0], [1]]}
-  - asset: [[0], [capacity, min_operating_point, investment_method, investment_ingeter, technical_lifetime, economic_lifetime, discount_rate, consumer_balance_sense, capacity_storage_energy, is_seasonal, use_binary_storage_method, unit_commitment, unit_commitment_method, unit_commitment_integer, ramping,storage_method_energy, energy_to_power_ratio, investment_integer_storage_energy, max_ramp_up,max_ramp_down]]
-year-data:
-  - year: {year: [[0], [0]]}
-  - year: [[0], [length, is_milestone]]
-asset-commission:
-  - asset__commission: {asset: [[0], [0]]}
-  - asset__commission: {commission_year: [[0], [1]]}
-  - asset__commission: [[0], [fixed_cost, investment_cost, investment_limit, fixed_cost_storage_energy, investment_cost_storage_energy, investment_limit_storage_energy]]
+  index_dim_names: [asset]
+  dims_to_parameters:
+    asset__type: [type]
+    asset__group: [[asset], [group]]
+  parameters:
+    asset: [capacity, min_operating_point, investment_method, investment_integer, technical_lifetime, economic_lifetime, discount_rate, consumer_balance_sense, capacity_storage_energy, is_seasonal, use_binary_storage_method, unit_commitment, unit_commitment_method, unit_commitment_integer, ramping,storage_method_energy, energy_to_power_ratio, investment_integer_storage_energy, max_ramp_up,max_ramp_down]
 asset-milestone:
-  - asset__year: {asset: [[0], [0]]}
-  - asset__year: {milestone_year: [[0], [1]]}
-  - asset__year: [[0], [investable, peak_demand, storage_inflows, initial_storage_level, min_energy_timeframe_partition, max_energy_timeframe_partition, units_on_cost]]
+  index_dim_names: [asset, milestone_year]
+  parameters:
+    asset__year: [[asset, year], [investable, peak_demand, storage_inflows, initial_storage_level, min_energy_timeframe_partition, max_energy_timeframe_partition, units_on_cost]]
+asset-commission:
+  index_dim_names: [asset, commission_year]
+  parameters:
+    asset__commission: [[asset, commission], [fixed_cost, investment_cost, investment_limit, fixed_cost_storage_energy, investment_cost_storage_energy, investment_limit_storage_energy]]
 asset-both:
-  - asset__commission__year: {asset: [[0], [0]]}
-  - asset__commission__year: {milestone_year: [[0], [2]]}
-  - asset__commission__year: {commission_year: [[0], [1]]}
-  - asset__commission__year: [[0], [decommissionable, initial_units, initial_storage_units]]
+  index_dim_names: [asset, milestone_year, commission_year]
+  dims_to_parameters:
+  parameters:
+    asset__commission__year: [[asset, commission, year], [decommissionable, initial_units, initial_storage_units]]
+rep-periods-data:
+  index_dim_names: [year, rep_period]
+  parameters:
+    year: [resolution, num_timesteps]
+assets-rep-periods-partitions:
+  index_dim_names: [asset, year, rep_period, specification]
+  parameters:
+    asset__year: [[[partition_rep_period, partition]]]
+assets-timeframe_partitions:
+  index_dim_names: [asset, year, specification]
+  parameters:
+    asset__year: [partition]
+year-data:
+  index_dim_names: [year]
+  parameters:
+    year: [length, is_milestone]
 flow:
-  - asset__asset__carrier: {from_asset: [[0, 1, 2], [0]]}
-  - asset__asset__carrier: {to_asset: [[0, 1, 2], [1]]}
-  - asset__asset__carrier: {carrier: [[0, 1, 2], [2]]}
-  - asset__asset__carrier: [[0, 1, 2], [is_transport,capacity,technical_lifetime,economic_lifetime,discount_rate,investment_integer]]
+  index_dim_names: [from_asset, to_asset, carrier]
+  parameters:
+    asset__asset__carrier: [[asset_1, asset_2, carrier], [is_transport,capacity,technical_lifetime,economic_lifetime,discount_rate,investment_integer]]
 flow-commission:
-  - asset__asset__commission: {from_asset: [[0, 1, 2], [0]]}
-  - asset__asset__commission: {to_asset: [[0, 1, 2], [1]]}
-  - asset__asset__commission: {commission_year: [[0, 1, 2], [2]]}
-  - asset__asset__commission: [[0, 1, 2], [fixed_cost,investment_cost,efficiency,investment_limit,flow_coefficient_in_capacity_constraint]]
+  index_dim_names: [from_asset, to_asset, commission_year]
+  parameters:
+    asset__asset__commission: [[asset_1, asset_2, commission], [fixed_cost,investment_cost,efficiency,investment_limit,flow_coefficient_in_capacity_constraint]]
 flow-milestone:
-  - asset__asset__year: {from_asset: [[0, 1, 2], [0]]}
-  - asset__asset__year: {to_asset: [[0, 1, 2], [1]]}
-  - asset__asset__year: {milestone_year: [[0, 1, 2], [2]]}
-  - asset__asset__year: [[0, 1, 2], [investable,variable_cost]]
-flow_both:
-  - asset__asset__year__commission: {from_asset: [[0, 1, 2, 3], [0]]}
-  - asset__asset__year__commission: {to_asset: [[0, 1, 2, 3], [1]]}
-  - asset__asset__year__commission: {milestone_year: [[0, 1, 2, 3], [3]]}
-  - asset__asset__year__commission: {commission_year: [[0, 1, 2, 3], [2]]}
-
+  index_dim_names: [from_asset, to_asset, milestone_year]
+  parameters:
+    asset__asset__year: [[asset_1, asset_2, year], [investable,variable_cost]]
+flow-both:
+  index_dim_names: [from_asset, to_asset, milestone_year, commission_year]
+  parameters:
+    asset__asset__commission__year: [[asset_1, asset_2, year, commission], [decommissionable, initial_export_units, initial_import_units]]
+flows-rep-periods-partitions:
+  index_dim_names: [from_asset, to_asset, year, rep_period, specification]
+  parameters:
+    asset__asset__year: [[[partition_rep_period, partition]]]
+assets-profiles:
+  index_dim_names: [asset, commission_year, profile_name]
+  parameters:
+    asset__commission__profile: [[asset, commission_year, profile_name], [profile_type]]
+assets-timeframe-profiles:
+  index_dim_names: [asset, commission_year, profile_name]
+  parameters:
+    asset__commission__profile: [[asset, commission_year, profile_name], [[profile_type_storage, profile_type]]]
+flows-profiles:
+  index_dim_names: [from_asset, to_asset, year, profile_name]
+  parameters:
+    asset__asset__year__profile: [[asset_1, asset_2, year, profile], [profile_type]]
+group_asset:
+  index_dim_names: [name, milestone_year]
+  parameters:
+    group__year: [[group, year], [invest_method,min_investment_limit,max_investment_limit]]
+profiles-rep-periods:
+  index_dim_names: [profile_name, year, rep_period, timestep]
+  parameters:
+    profile__year: [[[profile_time, value]]]
+profiles-timeframe:
+  index_dim_names: [profile_name, year, period]
+  parameters:
+    profile__year: [[[profile_period, value]]]
+rep-periods-mapping:
+  index_dim_names: [year, period, rep_period]
+  parameters:
+    year: [[0, 2, 1], [year, rep_period, period], [[rep_period_mapping, weight]]]
+timeframe-data:
+  index_dim_names: [year, period]
+  parameters:
+    year: [[[num_timesteps_period, num_timesteps]]]

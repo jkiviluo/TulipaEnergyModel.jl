@@ -19,6 +19,18 @@
                     "relative": true,
                     "path": ".spinetoolbox/specifications/Exporter/export_to_tulipa.json"
                 }
+            ],
+            "Tool": [
+                {
+                    "type": "path",
+                    "relative": true,
+                    "path": ".spinetoolbox/specifications/Tool/write_csvs_for_tulipa.json"
+                },
+                {
+                    "type": "path",
+                    "relative": true,
+                    "path": ".spinetoolbox/specifications/Tool/run_tulipa.json"
+                }
             ]
         },
         "connections": [
@@ -69,7 +81,7 @@
                         "entity_alternative": true,
                         "parameter_value_list": false,
                         "list_value": false,
-                        "parameter_definition": false,
+                        "parameter_definition": true,
                         "parameter_type": false,
                         "parameter_value": true,
                         "metadata": true,
@@ -88,13 +100,13 @@
                 }
             },
             {
-                "name": "from tulipa db to export tulipa",
+                "name": "from tulipa db to export csvs",
                 "from": [
                     "tulipa db",
                     "right"
                 ],
                 "to": [
-                    "export tulipa",
+                    "export csvs",
                     "left"
                 ],
                 "filter_settings": {
@@ -102,10 +114,29 @@
                         "db_url@tulipa db": {
                             "scenario_filter": {},
                             "alternative_filter": {
-                                "import tulipa@2025-04-07T09:56:12": true
+                                "import tulipa@2025-04-09T10:50:51": true
                             }
                         }
                     },
+                    "auto_online": true,
+                    "enabled_filter_types": {
+                        "alternative_filter": false,
+                        "scenario_filter": true
+                    }
+                }
+            },
+            {
+                "name": "from export csvs to tulipa",
+                "from": [
+                    "export csvs",
+                    "right"
+                ],
+                "to": [
+                    "tulipa",
+                    "left"
+                ],
+                "filter_settings": {
+                    "known_filters": {},
                     "auto_online": true,
                     "enabled_filter_types": {
                         "alternative_filter": false,
@@ -234,8 +265,8 @@
         "import tulipa": {
             "type": "Importer",
             "description": "",
-            "x": -308.73806423611114,
-            "y": -129.98806423611111,
+            "x": -309.7503935233071,
+            "y": -128.97573494891515,
             "specification": "import tulipa from csv",
             "cancel_on_error": false,
             "on_conflict": "merge",
@@ -263,20 +294,41 @@
                 "schema": ""
             }
         },
-        "export tulipa": {
-            "type": "Exporter",
+        "export csvs": {
+            "type": "Tool",
             "description": "",
-            "x": -46.98133680555557,
-            "y": -117.82443576388889,
-            "output_time_stamps": false,
-            "cancel_on_error": true,
-            "output_labels": [
+            "x": -52.34815644857823,
+            "y": -119.79674264193866,
+            "specification": "write csvs for tulipa",
+            "execute_in_work": false,
+            "cmd_line_args": [
                 {
-                    "in_label": "db_url@tulipa db",
-                    "out_label": "tulipa db_exported@export tulipa"
+                    "type": "resource",
+                    "arg": "db_url@tulipa db"
+                },
+                {
+                    "type": "literal",
+                    "arg": "tulipa_input"
                 }
             ],
-            "specification": "export to tulipa"
+            "kill_completed_processes": false,
+            "log_process_output": false
+        },
+        "tulipa": {
+            "type": "Tool",
+            "description": "",
+            "x": 69.45634285512087,
+            "y": -118.79004732561984,
+            "specification": "run tulipa",
+            "execute_in_work": false,
+            "cmd_line_args": [
+                {
+                    "type": "literal",
+                    "arg": ".spinetoolbox/tulipa_input"
+                }
+            ],
+            "kill_completed_processes": false,
+            "log_process_output": false
         }
     }
 }
