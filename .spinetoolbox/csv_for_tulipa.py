@@ -129,12 +129,13 @@ with DatabaseMapping(url_db) as source_db:
                             df.rename(columns={df.columns.values[i]: target_dim_name}, inplace=True)
                         df.rename(columns={df.columns.values[-1]: param_name_target}, inplace=True)
                         df.set_index(target_index_dim_names, inplace=True)
-                        if df_collect.empty:
-                            df_collect = df
-                        else:
-                            df_collect = df_collect.join(df, how='outer')
-                    # else:
-                    #     exit(f"Type error for {param_name}")
+                    else:
+                        df = pd.DataFrame(columns=target_index_dim_names + [param_name_target])
+                        df.set_index(target_index_dim_names, inplace=True)
+                    if df_collect.empty and df_collect.columns.empty:
+                        df_collect = df
+                    else:
+                        df_collect = df_collect.join(df, how='outer')
 
         df_collect.to_csv(f"{output_files_path}/{csv_name}.csv")
 

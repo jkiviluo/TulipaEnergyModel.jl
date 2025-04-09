@@ -41,7 +41,9 @@
     ],
     "description": "",
     "inputfiles": [],
-    "inputfiles_opt": [],
+    "inputfiles_opt": [
+        "tulipa_input/*.csv"
+    ],
     "outputfiles": [],
     "cmdline_args": [],
     "includes_main_path": "../../.."

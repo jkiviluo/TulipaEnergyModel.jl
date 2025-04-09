@@ -34,7 +34,7 @@ assets-rep-periods-partitions:
   index_dim_names: [asset, year, rep_period, specification]
   parameters:
     asset__year: [[[partition_rep_period, partition]]]
-assets-timeframe_partitions:
+assets-timeframe-partitions:
   index_dim_names: [asset, year, specification]
   parameters:
     asset__year: [partition]
@@ -74,7 +74,7 @@ flows-profiles:
   index_dim_names: [from_asset, to_asset, year, profile_name]
   parameters:
     asset__asset__year__profile: [[asset_1, asset_2, year, profile], [profile_type]]
-group_asset:
+group-asset:
   index_dim_names: [name, milestone_year]
   parameters:
     group__year: [[group, year], [invest_method,min_investment_limit,max_investment_limit]]
