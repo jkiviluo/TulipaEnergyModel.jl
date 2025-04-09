@@ -51,9 +51,9 @@ with DatabaseMapping(url_db) as source_db:
                 else:
                     source_index_dim_names = target_index_dim_names
                     dims_to_parameters = dim_specs
-                entity_class_from_db = source_db.find_entity_classes(name=entity_class)
                 class_dims_in_db = entity_class_from_db[0]["entity_class_byname"]
                 entities = source_db.find_entities(entity_class_name=entity_class)
+                entity_class_from_db = source_db.find_entity_classes(name=entity_class)
                 dims = []
                 for spec_dim_name in source_index_dim_names:
                     found_flag = False
